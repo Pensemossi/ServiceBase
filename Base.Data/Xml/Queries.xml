@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<top>
+  <queries>
+
+    <!-- USERTOKEN -->   
+    
+    <SQL id="UserToken_ValidateToken">
+      <!--
+
+       SELECT token IdToken, cast(userid as varchar2(36)) IdUsuario
+        FROM USR_FACTORYSUITEV1.VW_ASPNET_USERS
+       WHERE Token = :IdToken
+            
+      -->
+    </SQL>
+    
+     <!-- CERTIFICADO-->   
+    
+    <SQL id="Certificado_ConsultaInformacionGeneralCcite">
+      <!--
+
+             Select cast( nvl(c.noccitesie1,c.NoCCITE) as int) NoCCITE
+                  , upper(e.DireccionCorrespondencia) DireccionCorrespondencia
+                  , c.FechaExpedicion
+                  , FechaVencimiento
+                  , upper(e.Nombre) NombreEmpresa
+                  , upper(ec.EstadoCertificado) EstadoCertificado
+                  , upper(CASE WHEN Periodicidad=0 THEN 'Mensual(es)' WHEN Periodicidad=1 THEN 'Anual(es)' WHEN Periodicidad=3 THEN 'Semestral(es)' ELSE 'Unica Operación' END) Periodicidad 
+                  , upper(codseguridad) codseguridad
+                  , upper(e.telefono) telefono
+                  , upper(ci.ciudad) ciudad
+                  , upper(de.departamento) departamento
+                  , upper(tt.tipotramite) tipotramite
+                  , upper(e.nodoc) DocumentoEmpresa 
+              From certificado  c
+                   INNER JOIN presolicitud      p   ON  c.IdPresolicitud = p.IdPresolicitud
+                   INNER JOIN tipotramite       tt  ON  p.IdTipoTramite = tt.IdTipoTramite
+                   INNER JOIN empresa           e   ON  c.IDEmpresa = e.IDEmpresa
+                   INNER JOIN ciudad            ci  ON  e.IdCiudad = ci.IdCiudad
+                   INNER JOIN departamento      de  ON  ci.IdDepartamento = de.IdDepartamento
+                   INNER JOIN EstadoCertificado ec  ON  c.IDEstadoCertificado= ec.IDEstadoCertificado
+            where nvl(c.noccitesie1,c.NoCCITE) = :NoCcite
+          
+  
+      -->
+    </SQL>
+    
+     <SQL id="Certificado_ConsultaInformacionGeneralCcitePorQr">
+      <!--
+
+              Select cast( nvl(c.noccitesie1,c.NoCCITE) as int) NoCCITE
+                  , upper(e.DireccionCorrespondencia) DireccionCorrespondencia
+                  , c.FechaExpedicion
+                  , FechaVencimiento
+                  , upper(e.Nombre) NombreEmpresa
+                  , upper(ec.EstadoCertificado) EstadoCertificado
+                  , upper(CASE WHEN Periodicidad=0 THEN 'Mensual(es)' WHEN Periodicidad=1 THEN 'Anual(es)' WHEN Periodicidad=3 THEN 'Semestral(es)' ELSE 'Unica Operación' END) Periodicidad 
+                  , upper(codseguridad) codseguridad
+                  , upper(e.telefono) telefono
+                  , upper(ci.ciudad) ciudad
+                  , upper(de.departamento) departamento
+                  , upper(tt.tipotramite) tipotramite
+                  , upper(e.nodoc) DocumentoEmpresa 
+              From certificado  c
+                   INNER JOIN presolicitud      p   ON  c.IdPresolicitud = p.IdPresolicitud
+                   INNER JOIN tipotramite       tt  ON  p.IdTipoTramite = tt.IdTipoTramite
+                   INNER JOIN empresa           e   ON  c.IDEmpresa = e.IDEmpresa
+                   INNER JOIN ciudad            ci  ON  e.IdCiudad = ci.IdCiudad
+                   INNER JOIN departamento      de  ON  ci.IdDepartamento = de.IdDepartamento
+                   INNER JOIN EstadoCertificado ec  ON  c.IDEstadoCertificado= ec.IDEstadoCertificado
+            where c.CodSeguridad = :CodigoSeguridad
+          
+  
+      -->
+    </SQL>
+    
+    <SQL id="Certificado_GetCertificateIdFromCcite">
+      <!--
+         Select IdCertificado From certificado  c where nvl(c.noccitesie1,c.NoCCITE) = :NoCcite            
+      -->
+    </SQL>
+    
+    <SQL id="Certificado_GetCertificateIdFromCcitePorQr">
+      <!--
+         Select IdCertificado From certificado  c where c.CodSeguridad = :CodigoSeguridad
+      -->
+    </SQL>
+        
+     <!-- CERTIFICADO CONSUMO MASIVO-->   
+    
+    <SQL id="CertificadoConsumoMasivo_ConsultaInformacionGeneralCertificado">
+      <!--
+
+             SELECT MSM.IDMOVIMIENTO
+                    ,EMP.NOMBRE NOMBREEMPRESA
+                    ,TID.ABREVIATURA TIPODOCUMENTOEMPRESA
+                    ,EMP.NODOC DOCUMENTOEMPRESA
+                    ,EMP.NOMBREREPRESENTANTE NOMBREREPRESENTANTE
+                    ,TIR.ABREVIATURA TIPODOCUMENTOREPRESENTANTE
+                    ,EMP.NODOCREPRESENTANTE DOCUMENTOREPRESENTANTE
+                    ,EMP.EMAILREPRESENTANTE
+                    ,EMP.TELEFONOREPRESENTANTE
+                    ,SUC.DIRECCION DIRECCIONEMPRESA
+                    ,DEP.DEPARTAMENTO DEPARTAMENTOEMPRESA
+                    ,CIU.CIUDAD CIUDADEMPRESA     
+                    ,SUS.SUSTANCIA
+                    ,CD.NOMBRE ACTIVIDAD
+                    ,MSM.CANTIDAD
+                    ,UNI.UNIDAD
+                    ,TM.TIPOMOVIMIENTO || ' - ' || TDS.TIPODOCSOPORTE TIPODOCUMENTOSOPORTE
+                    ,MSM.NRODOCSOPORTE DOCUMENTOSOPORTE
+                    ,MSM.FECHAESTIMADADESDE
+                    ,MSM.FECHAESTIMADAHASTA
+                    ,MSM.USO
+                    ,MSM.NOMBRETERCERO
+                    ,DOC.ABREVIATURA TIPODOCUMENTOTERCERO
+                    ,MSM.NRODOCTERCERO DOCUMENTOTERCERO
+                    ,MSM.TELEFONOTERCERO
+                    ,CIU2.CIUDAD CIUDADTERCERO
+                    ,DEP2.DEPARTAMENTO DEPARTAMENTOTERCERO
+                    ,MSM.DIRECCIONTERCERO
+               FROM  MOVIMIENTOSSUSTANCIAMASIVO             MSM
+                     INNER JOIN TIPOIDENTIFICACION          DOC  ON DOC.IDTIPOID        = MSM.TIPODOCUMENTO
+                     INNER JOIN TIPODOCSOPORTEMOV           TDS  ON TDS.IDTIPODOCSOPORTE= MSM.TIPODOCSOPORTE
+                     INNER JOIN TIPOMOVIMIENTO              TM   ON TM.IDTIPOMOVIMIENTO=TDS.IDTIPOMOVIMIENTO
+                     INNER JOIN CALIDADES                   CD   ON CD.IDCALIDAD= MSM.IDACTIVIDAD
+                     INNER JOIN SUSTANCIASAUTORIZADASMODMAS AUT  ON AUT.ID              = MSM.IDSUSTANCIAAUTORIZADA
+                     INNER JOIN SUSTANCIA                   SUS  ON SUS.IDSUSTANCIA     = AUT.IDSUSTANCIA
+                     INNER JOIN UNIDAD                      UNI  ON UNI.IDUNIDAD        = MSM.UNIDAD       
+                     INNER JOIN SUCURSAL                    SUC  ON SUC.IDSUCURSAL      = MSM.SUCURSAL
+                     INNER JOIN CIUDAD                      CIU  ON CIU.IDCIUDAD        = SUC.IDCIUDAD
+                     INNER JOIN DEPARTAMENTO                DEP  ON DEP.IDDEPARTAMENTO  = SUC.IDDEPARTAMENTO
+                     INNER JOIN EMPRESA                     EMP  ON SUC.IDEMPRESA       = EMP.IDEMPRESA
+                     INNER JOIN TIPOIDENTIFICACION          TID  ON TID.IDTIPOID        = EMP.IDTIPOID
+                     LEFT JOIN TIPOIDENTIFICACION          TIR  ON TIR.IDTIPOID        = EMP.IDTIPOIDREPRESENTANTE
+                     INNER JOIN CIUDAD                      CIU2  ON CIU2.IDCIUDAD        = MSM.MUNICIPIOTERCERO
+                     INNER JOIN DEPARTAMENTO                DEP2  ON DEP2.IDDEPARTAMENTO  = MSM.DEPARTAMENTOTERCERO
+               Where MSM.IDMOVIMIENTO = :IdMovimiento
+          
+  
+      -->
+    </SQL>
+    
+  
+   
+    <!-- SUSTANCIA -->   
+    
+    <SQL id="Sustancia_ConsultaSustanciasCcite">
+      <!--
+
+             
+          SELECT   distinct     
+                    upper(sc.Direccion) Sucursal 
+                  , upper(s.Sustancia) Nombre
+                  , dc.Cantidad
+                  , upper(u.Unidad) Unidad
+                  , upper(u.Sigla) SiglaUnidad
+                  , upper(PKG_SICOQ.FN_ObtenerSiglaSustancia(c.IDCertificado,s.IDSustancia,dc.IDSucursal)) Sigla
+                  , initcap(expresar_en_letras.numero_a_letras(NVL(dc.Cantidad,0))||' '||NVL(u.Unidad,'')) CantidadLetras
+                  ,upper(sc.direccion || ' ' || de.departamento || ' - ' || ci.ciudad) direccion
+                  ,upper(sc.telefono) telefono
+                  ,upper(sc.celular) celular
+                  ,upper(ci.ciudad) ciudad
+                  ,upper(de.departamento) departamento
+          FROM    Certificado    c   
+                  INNER JOIN DetalleCertificado           dc  ON  c.IDCertificado = dc.IDCertificado
+                  INNER JOIN Sustancia                    s   ON  dc.IDSustancia = s.IDSustancia
+                  INNER JOIN Unidad                       u   ON  dc.IDUnidad = u.IDUnidad
+                  INNER JOIN Sucursal                     sc  ON  dc.IDSucursal = sc.IDSucursal
+                  INNER JOIN DetalleCertificadoCalidades  dcc ON  dc.IDDetalleCertificado = dcc.IDDetalleCertificado
+                  INNER JOIN Calidades                    c   ON  dcc.IDCalidad = c.IDCalidad
+                  INNER JOIN ciudad                       ci  ON  sc.IdCiudad = ci.IdCiudad
+                  INNER JOIN departamento                 de  ON  ci.IdDepartamento = de.IdDepartamento
+          WHERE   nvl(c.noccitesie1,c.NoCCITE) = :NoCcite And   dc.Cantidad>0
+          ORDER BY 8,2 asc 
+          
+  
+      -->
+    </SQL>
+    
+    <SQL id="Sustancia_ConsultaSustanciasCcitePorQr">
+      <!--
+
+             
+          SELECT   distinct     
+                    upper(sc.Direccion) Sucursal 
+                  , upper(s.Sustancia) Nombre
+                  , dc.Cantidad
+                  , upper(u.Unidad) Unidad
+                  , upper(u.Sigla) SiglaUnidad
+                  , upper(PKG_SICOQ.FN_ObtenerSiglaSustancia(c.IDCertificado,s.IDSustancia,dc.IDSucursal)) Sigla
+                  , initcap(expresar_en_letras.numero_a_letras(NVL(dc.Cantidad,0))||' '||NVL(u.Unidad,'')) CantidadLetras
+                  ,upper(sc.direccion || ' ' || de.departamento || ' - ' || ci.ciudad) direccion
+                  ,upper(sc.telefono) telefono
+                  ,upper(sc.celular) celular
+                  ,upper(ci.ciudad) ciudad
+                  ,upper(de.departamento) departamento
+          FROM    Certificado    c   
+                  INNER JOIN DetalleCertificado           dc  ON  c.IDCertificado = dc.IDCertificado
+                  INNER JOIN Sustancia                    s   ON  dc.IDSustancia = s.IDSustancia
+                  INNER JOIN Unidad                       u   ON  dc.IDUnidad = u.IDUnidad
+                  INNER JOIN Sucursal                     sc  ON  dc.IDSucursal = sc.IDSucursal
+                  INNER JOIN DetalleCertificadoCalidades  dcc ON  dc.IDDetalleCertificado = dcc.IDDetalleCertificado
+                  INNER JOIN Calidades                    c   ON  dcc.IDCalidad = c.IDCalidad
+                  INNER JOIN ciudad                       ci  ON  sc.IdCiudad = ci.IdCiudad
+                  INNER JOIN departamento                 de  ON  ci.IdDepartamento = de.IdDepartamento
+          WHERE   c.CodSeguridad = :CodigoSeguridad And   dc.Cantidad>0
+          ORDER BY 8,2 asc 
+          
+  
+      -->
+    </SQL>
+    
+     <!-- LOGCONSULTA -->   
+    
+    <SQL id="LogConsulta_Insert">
+      <!--
+          BEGIN
+            INSERT INTO CertificadoLog (IdCertificado, IdUsuario, Tipo, Latitud, Longitud) VALUES (:IdCertificado, :IdUsuario, :Tipo, :Latitude, :Longitude) Returning Id into :Id;            
+          END ;
+          
+      -->
+    </SQL>
+    
+
+    <!--TIPO FALLA-->
+    
+    <SQL id="TipoFalla_GetAll">
+      <!-- 
+          Select Id, Nombre From CertificadoTipoFallas Where Activo = 1
+          
+      -->
+    </SQL>
+
+    <SQL id="TipoFalla_DetalleInsert">
+      <!--
+          INSERT INTO CertificadoDetalleLog (IdLog, IdTipoFalla, Comentario) VALUES (:IdConsulta, :Id, :Comentario)
+          
+      -->
+    </SQL>
+    
+  </queries>
+</top>
